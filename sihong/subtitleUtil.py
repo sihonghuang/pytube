@@ -4,30 +4,38 @@ import os
 import re
 import math
 
+
+def changeEnglishSubtitles(input_url):
+    remove_words = ['Özgür: ','Burcu: ']
+    changeSymbol = ['...']
+    for line in fileinput.input(input_url, inplace=1, encoding='UTF-8'):
+        for remove_word in remove_words:
+            line = line.replace(remove_word,"")
+        for symbol in changeSymbol:
+            line = line.replace(symbol,'. ')
+        print(line, end='')
+
 def changeWords(input_url):
     awords = ['标志', '月光', '免费', '十二生肖', '生肖', '征兆', '星座', '签名']
     bwords = ['奥兹古尔', 'Ozgur']
-    cwords = ['。','...']#空格代替标点符号
+    cwords = ['。','。 ']#空格代替标点符号
     nametxt= ['Özgür：','布尔库：','Burcu: ','厄兹古尔：','布尔库: ','厄兹古尔: ']
+    count = 0  # 初始化计数器
     for line in fileinput.input(input_url, inplace=1, encoding='UTF-8'):
-        for a in awords:
-            line = line.replace(a, "布尔库")
-        for b in bwords:
-            line = line.replace(b, "厄兹古尔")
-        for c in cwords:
-            line = line.replace(c, ".")
-
+        count += 1  # 增加计数器
+        if count % 5 == 3:  # 检查计数器是否为第三行
+            # 替换第四行的内容
+            for a in awords:
+                line = line.replace(a, "布尔库")
+            for b in bwords:
+                line = line.replace(b, "厄兹古尔")
+            for c in cwords:
+                line = line.replace(c, ".")
         print(line, end="")
-    for line in fileinput.input(input_url, inplace=1, encoding='UTF-8'):
-        for name in nametxt:
-            line = line.replace(name, "")
-        print(line, end="")
-
 
 def changeSimple(input_url):
     for line in fileinput.input(input_url, inplace=1, encoding='UTF-8'):
         line = zhconv.convert(line, 'zh-cn')
-
         print(line,end="")
 
 def open_file(filename):
@@ -36,14 +44,12 @@ def open_file(filename):
     filehandle_Chinese.close()
     return mystr_Chinese
 
-
 def write_list_to_txt(file_name, data_list):  # 将列表按行写入到TXT文件中
     handle = open(file_name, 'w',encoding='utf-8')
     for element in data_list:
         handle.write(str(element))
         #handle.write('\n')
     handle.close()
-
 
 def merge_subtitle(str_list_Chinese, str_list_English):
     new_str_list = str_list_Chinese  # 直接就让和和中文字幕相同，复制一份，然后间轴轴不变，只修具具体的字幕内容
@@ -113,26 +119,54 @@ def pybyte(size, dot=2):
         raise ValueError('{}() takes number than or equal to 0, but less than 0 given.'.format(pybyte.__name__))
     return human_size
 
+
+def get_user_choice():
+    while True:
+        print("选择要使用的功能：")
+        print("0. 1和2的组合")
+        print("1. 英文字幕加工")
+        print("2. 转换字幕")
+        print("3. 繁体转简体")
+        print("4. 合并中英文字幕")
+
+
+        choice = input("输入选项编号：")
+
+        if choice.isdigit():
+            choice = int(choice)
+
+            if choice == 0:
+                input_url = input("输入英文字幕文件：")
+                changeEnglishSubtitles(input_url)
+                mix_url = input("输入中英文字幕文件：")
+                changeWords(mix_url)
+                break
+
+            elif choice == 1:
+                input_url = input("输入字幕文件：")
+                changeEnglishSubtitles(input_url)
+                break
+            elif choice == 2:
+                input_url = input("输入字幕文件：")
+                changeWords(input_url)
+                break
+            elif choice == 3:
+                simplefile = input("输入要转换简体字幕文件：")
+                changeSimple(simplefile)
+                break
+
+            elif choice == 4:
+                chinesefile = input("输入中文字幕文件：")
+                englishfile = input("输入英文字幕文件：")
+                changeWords(chinesefile)
+                str_list_Chinese = open_file(chinesefile)
+                str_list_English = open_file(englishfile)
+                new_str_list = merge_subtitle(str_list_Chinese, str_list_English)
+                filename = chinesefile.rsplit("\\", 1)[0] + '\\中英文字幕.srt'
+                write_list_to_txt(filename, new_str_list)
+                break
+
+        print("无效的选项，请重新输入。")
+
 if __name__ == '__main__':
-    #type = 2 # 0 转换字幕 1合并中英文字幕 #2繁体转简体
-    inputtype = input("选择要使用得功能( 0 转换字幕 1合并中英文字幕 #2繁体转简体)：")
-    if inputtype == "0":
-        input_url = input("输入字幕文件：")
-        changeWords(input_url)
-
-    elif inputtype == "1":
-        chinesefile = input("输入中文字幕文件：")
-        englishfile = input("输入英文字幕文件：")
-        changeWords(chinesefile)
-        str_list_Chinese = open_file(chinesefile)
-        str_list_English = open_file(englishfile)
-        new_str_list = merge_subtitle(str_list_Chinese, str_list_English)
-        filename = chinesefile.rsplit("\\", 1)[0]+'\\中英文字幕.srt'
-        # filename = 'D:\油管资料\露营\AtikAilesi\2022-10-07_DDETLFIRTINADANADIRITOPLAMAKZORUNDAKALDIK\zhDDETLFIRTINADANADIRITOPLAMAKZORUNDAKALDIK (zh).srt'
-        # filename = filename.rsplit("\\",1)[0]
-        write_list_to_txt(filename, new_str_list)
-
-
-    elif inputtype == "2":
-        simplefile = input("输入要转换简体字幕文件:")
-        changeSimple(simplefile)
+    get_user_choice()

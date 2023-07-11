@@ -12,6 +12,9 @@ import re
 import datetime
 from pytube import Channel
 import sys
+from googletrans import Translator
+
+
 
 import subtitleUtil
 
@@ -444,6 +447,14 @@ def tdownloadYoutube(url):
 
     return video_num
 
+def googleTrans(content):
+    translator = Translator(service_urls=['translate.google.com.au'])  # 使用中国区域的Google翻译服务
+    translation = translator.translate(content, dest='zh-cn')
+    chinese_text = translation.text
+
+    print(chinese_text)
+
+
 def tdownload_subtitles(yt, save_path, file_path, title):
     print(yt.captions)
 
@@ -458,7 +469,9 @@ if __name__ == '__main__':
     url = 'https://www.youtube.com/watch?v=d-uBQLHFLCs&ab_channel=AtikAilesi'
     default_ptah = get_path() + 'youtube/'
     print(default_ptah)
-    tdownloadYoutube(url)
+    #tdownloadYoutube(url)
+    content = "Hello, how are you?"
+    googleTrans(content)
 
 
 
