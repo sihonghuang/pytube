@@ -12,7 +12,7 @@ import datetime
 from pytube import Channel
 import sys
 
-import subtitleUtil
+from sihong.Utils import subtitleUtil
 
 fuchsia = '\033[38;2;255;00;255m'  # color as hex #FF00FF
 reset_color = '\033[39m'
