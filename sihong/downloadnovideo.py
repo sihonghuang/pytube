@@ -63,8 +63,8 @@ def downloadYoutube(url):
     # 下载封面
     video_img = youtubeUtil.request_download(yt.thumbnail_url, save_path, file_path,
                                              title)  # 下载视频封面
-    # 下载音频
-    audio = youtubeUtil.download_audio(yt, save_path, file_path)
+    # 下载音频 暂时用youtube-dl的下载方法
+    #audio = youtubeUtil.download_audio(yt, save_path, file_path)
     # 下载视频
     #video_num = youtubeUtil.download_video(yt, save_path, file_path)
     video_num = youtubeUtil.download_highest_resolution_video(url,save_path,file_path)
@@ -103,7 +103,7 @@ def download_by_channels(channe_lists):
     num = 0
     sum_video_num = 0  # 本次总下载数
     up = ""
-    download_num = 3  # 循环下载up主的视频数
+    download_num = 7  # 循环下载up主的视频数
     for channel in channe_lists:
         video_num = 0  # 初始化视频下载数
         num += 1  # 初始化下载的推主序号
@@ -175,25 +175,23 @@ def today_release_youtuber_list(url, download_type, channel_name):
 
 
 def write_to_excel(author, title, views, publish_date, description, url, channel_name):
-    execel_save_path = excel_path_check(channel_type(channel_name))
-    wb = xl.load_workbook(execel_save_path)  # 获取文件
-    # table = wb.worksheets[0]  # 得到sheet页
-    ws = wb[channel_name]
-    # ws = ws.active
-    nrows = ws.max_row + 1  # 总行数
-    ws.cell(row=nrows, column=1, value=author)
-    ws.cell(row=nrows, column=2, value=commonUtil.googleTrans(title, "英文"))
-    ws.cell(row=nrows, column=3, value=views)
-    ws.cell(row=nrows, column=4, value=publish_date.strftime("%Y%m%d"))
-    ws.cell(row=nrows, column=5,
-            value=description + "\r\n" + commonUtil.googleTrans(description, "中文"))
-    ws.cell(row=nrows, column=6,
-            value=author + " | " + commonUtil.googleTrans(title, "中文") + "(第 期)")
-    ws.cell(row=nrows, column=7,
-            value=url + "\r\n转自【" + author + "】" + "\r\n" + commonUtil.googleTrans(
-                description, "中文"))
-    wb.save(execel_save_path)
-    print("写入表格行 " + str(nrows) + ": " + author + title)
+    try:
+        excel_save_path = excel_path_check(channel_type(channel_name))
+        wb = xl.load_workbook(excel_save_path)  # 获取文件
+        ws = wb[channel_name]
+        nrows = ws.max_row + 1  # 总行数
+        ws.cell(row=nrows, column=1, value=author)
+        ws.cell(row=nrows, column=2, value=commonUtil.googleTrans(title, "英文"))
+        ws.cell(row=nrows, column=3, value=views)
+        ws.cell(row=nrows, column=4, value=publish_date.strftime("%Y%m%d"))
+        ws.cell(row=nrows, column=5, value=description + "\r\n" + commonUtil.googleTrans(description, "中文"))
+        ws.cell(row=nrows, column=6, value=author + " | " + commonUtil.googleTrans(title, "中文") + "(第 期)")
+        ws.cell(row=nrows, column=7, value=url + "\r\n转自【" + author + "】" + "\r\n" + commonUtil.googleTrans(description, "中文"))
+        wb.save(excel_save_path)
+        print("写入表格行 " + str(nrows) + ": " + author + title)
+    except Exception as e:
+        # 在这里处理异常，可以打印异常信息，也可以进行其他操作
+        print("发生异常：" + str(e))
 
 
 def get_user_choice(channel_list):

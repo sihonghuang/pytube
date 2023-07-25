@@ -18,9 +18,10 @@ def changeEnglishSubtitles(input_url):
 
 
 def changeChineseSubtitles(input_url):
-    remove_words = ['Özgür：', 'Burcu：', '厄兹古尔：', '十二星座：', '十二生肖：',
-                    '标志：', '奥兹古尔：', '月光：', '征兆：', "布尔库：",
-                    '星座：', '签名：', '生肖：', '签：', 'Burcu：']
+    remove_words = ['Özgür：', 'Burcu：', '厄兹古尔：', '十二星座：', '十二生肖：'
+                    , '标志：', '奥兹古尔：', '月光：', '征兆：', '布尔库：'
+                    , '招牌：', '符号：', 'Zodiac：', '布尔库：'
+                    , '星座：', '签名：', '生肖：', '签：']
     changeSymbol = ['...', '……']
     for line in fileinput.input(input_url, inplace=1, encoding='UTF-8'):
         for remove_word in remove_words:
@@ -124,6 +125,7 @@ def merge_caption(chinese_file, english_file):
     new_str_list = merge_subtitle(str_list_Chinese, str_list_English)
     filename = chinese_file.rsplit("/", 1)[0] + '/中英文字幕.srt'
     write_list_to_txt(filename, new_str_list)
+    print("合并字幕成功")
 
 
 # 重命名
