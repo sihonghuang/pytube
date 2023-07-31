@@ -48,6 +48,21 @@ def file_path_check(save_path, file_path):
         print("新视频，正在创建新文件夹")
         os.makedirs(dirs)
 
+def delete_mp4_with_prefix(directory_path):
+    if os.path.exists(directory_path):
+        folders = [f for f in os.listdir(directory_path) if os.path.isdir(os.path.join(directory_path, f))]
+        if folders:
+            for filename in os.listdir(directory_path):
+                if filename.startswith("Final_") and filename.lower().endswith(".mp4"):
+                    print("directory_path:" + directory_path)
+                    os.remove(directory_path)
+                    print(f"最终视频已合成，删除文件：{directory_path}")
+        else:
+            print("该视频尚未剪辑")
+    else:
+        print("目录不存在或者不是一个文件夹。")
+
+
 def googleTrans(content, type):
     if type == '中文':
         type = 'zh-cn'

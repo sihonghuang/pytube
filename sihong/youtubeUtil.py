@@ -1,4 +1,5 @@
 import os
+import time
 
 from sihong.Utils import commonUtil, subtitleUtil
 import requests
@@ -219,10 +220,12 @@ def merge_audio_and_video(audio_file_path, video_file_path, output_file_path):
 
 
 def download_highest_resolution_video(url, save_path, file_path):
+    video_num = 0
     # 检查是否已经存在名为1.txt的文件
     check_file_path = os.path.join(save_path, file_path, "1.txt")
     if os.path.exists(check_file_path):
-        print("完整视频已下载。")
+        print("最终输出文件已存在。")
+        commonUtil.delete_mp4_with_prefix(save_path+file_path)
     else:
         video_ydl_opts = {
             #'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
@@ -242,16 +245,12 @@ def download_highest_resolution_video(url, save_path, file_path):
                 video_info = ydl.extract_info(url, download=False)
                 video_title = commonUtil.remove_symbol(video_info['title'])
                 video_file_path = os.path.join(save_path, file_path, f"Video_{video_title}.mp4")
-                print("video_file_path:" + video_file_path)
                 video_size = video_info.get('filesize', 0)
 
                 if not check_file_exists_and_size(video_file_path, video_size):
                     print(f"开始下载视频：{video_file_path}")
                     ydl.download([url])
                     # 下载完成后将文件重命名
-                    os.rename(
-                        os.path.join(save_path, file_path, f"Video_{video_info['title']}.mp4"),
-                        video_file_path)
                 else:
                     print(f"视频文件已存在或大小符合要求，跳过下载：{video_file_path}")
             # 下载音频
@@ -260,23 +259,36 @@ def download_highest_resolution_video(url, save_path, file_path):
                 audio_title = commonUtil.remove_symbol(audio_info['title'])
                 audio_file_path = os.path.join(save_path, file_path,
                                                f"Audio_{audio_title}.{audio_info['ext']}")
-                print("audio_file_path:" + audio_file_path)
                 audio_size = audio_info.get('filesize', 0)
 
                 if not check_file_exists_and_size(audio_file_path, audio_size):
                     print(f"开始下载音频：{audio_file_path}")
                     ydl.download([url])
-                    # 下载完成后将文件重命名
-                    os.rename(os.path.join(save_path, file_path,
-                                           f"Audio_{audio_info['title']}.{audio_info['ext']}"),
-                              audio_file_path)
+
                 else:
                     print(f"音频文件已存在或大小符合要求，跳过下载：{audio_file_path}")
         except Exception as e:
             print(f"视频下载失败: {e}")
         else:
             print("视频下载完成！")
+        video_file_path, audio_file_path = find_video_and_audio_files(save_path, file_path)#通过获取目录文件夹的名字更为精准
+        #print("video_file_path:" + video_file_path)
+        #print("audio_file_path:" + audio_file_path)
+        time.sleep(5)
+        try:
+            os.rename(os.path.join(save_path, file_path,
+                               f"Video_{video_info['title']}.mp4"),
+            video_file_path) # 下载完成后将文件重命名
+
+            os.rename(os.path.join(save_path, file_path,
+                               f"Audio_{audio_info['title']}.{audio_info['ext']}"),
+                  audio_file_path)
+        except Exception as e:
+            print(f"重命名失败: {e}")
         # 合并视频和音频为最终视频文件
+        video_file_path, audio_file_path = find_video_and_audio_files(save_path, file_path)
+        #print("new video_file_path:" + video_file_path)
+        #print("new audio_file_path:" + audio_file_path)
         final_output = os.path.join(save_path, file_path, f"Final_{video_title}.mp4")
         # 检查最终输出文件是否存在，如果不存在，则进行合并操作
         if not os.path.exists(final_output):
@@ -287,8 +299,17 @@ def download_highest_resolution_video(url, save_path, file_path):
             with open(check_file_path, "w") as f:
                 f.write("Video and audio merged successfully.")# 创建名为1.txt的文件
                 f.close()
+            video_num = 1
         else:
-            print(f"最终输出文件已存在，跳过下载合并：{final_output}")
+            check_file_path = os.path.join(save_path, file_path, "1.txt")
+            if os.path.exists(check_file_path):
+                print(f"最终输出文件已存在，跳过下载合并：{final_output}")
+            else:
+                with open(check_file_path, "w") as f:
+                    f.write("Video and audio merged successfully.")  # 创建名为1.txt的文件
+                    f.close()
+                print("最终输出文件已存在,记录文件未生成，重新生成")
+    return video_num
 
 
 def check_file_exists_and_size(file_path, size_threshold):
@@ -310,6 +331,31 @@ def merge_video_and_audio(video_path, audio_path, output_path):
     else:
         print("视频合并完成！")
 
+
+def find_video_and_audio_files(save_path, file_path):
+    video_file_path = None
+    audio_file_path = None
+
+    # Get the full directory path by joining save_path and file_path
+    directory = os.path.join(save_path, file_path)
+
+    # Check if the directory exists
+    if not os.path.isdir(directory):
+        print(f"Error: Directory '{directory}' does not exist.")
+        return video_file_path, audio_file_path
+
+    # List all files in the directory
+    files = os.listdir(directory)
+
+    # Loop through the files and find the ones that start with 'Video' or 'Audio'
+    for filename in files:
+        full_path = os.path.join(directory, filename)
+        if filename.startswith('Video'):
+            video_file_path = full_path
+        elif filename.startswith('Audio'):
+            audio_file_path = full_path
+
+    return video_file_path, audio_file_path
 
 if __name__ == '__main__':
     url = 'https://www.youtube.com/watch?v=d-uBQLHFLCs&t=2s&ab_channel=AtikAilesi'

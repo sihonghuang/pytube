@@ -1,11 +1,14 @@
 import fileinput
+import time
+
 import zhconv
 import re
 import math
-
+import os
+from googletrans import Translator
 
 def changeEnglishSubtitles(input_url):
-    remove_words = ['Özgür: ', 'Burcu: ']
+    remove_words = ['Özgür: ', 'Burcu: ', 'Taha: ', 'Dilara: ']
     changeSymbol = ['...']
     for line in fileinput.input(input_url, inplace=1, encoding='UTF-8'):
         for remove_word in remove_words:
@@ -14,8 +17,39 @@ def changeEnglishSubtitles(input_url):
             line = line.replace(symbol, '. ')
         print(line, end='')
     format_englishsrt(input_url)
+    try:
+        translate_and_rearrange_subtitles(input_url)
+    except Exception as e:
+        print(f"翻译音频失败：{e}")
     return input_url
 
+
+def translate_and_rearrange_subtitles(input_path):
+    # Get the directory path and the base name of the input file
+    input_dir = os.path.dirname(input_path)
+    file_name, extension = os.path.splitext(os.path.basename(input_path))
+    # Prepare the output file path for the translated subtitles
+    #output_path = os.path.join(input_dir, f"{file_name}(生成){extension}")
+    output_path = os.path.join(input_dir, f"中英文字幕(生成){extension}")
+
+    translator = Translator()# Initialize the translator
+    with open(input_path, "r", encoding="utf-8") as input_file, \
+        open(output_path, "w", encoding="utf-8") as output_file:
+        line_count = 0
+        for line in input_file:
+            line_count += 1
+            line = line.strip()
+
+            # If it's the third line (English subtitle), translate it and add the translation above
+            if line_count % 4 == 3:
+                translation = translator.translate(line, dest="zh-CN").text
+                time.sleep(5)
+                output_file.write(f"{translation}\n")
+            # Write the original line to the output file
+            output_file.write(f"{line}\n")
+    input_file.close()
+    output_file.close()
+    print("根据英文字幕生成中英文字幕")
 
 def changeChineseSubtitles(input_url):
     remove_words = ['Özgür：', 'Burcu：', '厄兹古尔：', '十二星座：', '十二生肖：'
@@ -238,6 +272,5 @@ if __name__ == '__main__':
     # changeChineseSubtitles(r'D:\油管资料\露营\AtikAilesi\2023-07-07_DEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP\zh-HansDEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP (zh-Hans).srt')
     # get_user_choice()
     # englishsrt(r'D:\油管资料\露营\AtikAilesi\2023-07-07_DEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP\enDEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP (en).srt')
-    merge_caption(
-        r"D:/油管资料/露营/AtikAilesi/2023-07-07_DEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP/zh-HansDEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP (zh-Hans).srt",
-        r"D:/油管资料/露营/AtikAilesi/2023-07-07_DEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP/enDEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP (en).srt")
+    url = r'D:\油管资料\露营\365GnDoadayz\2022-06-17_GLKENARINDAYILANLARLAKAMP\enGLKENARINDAYILANLARLAKAMP (en).srt'
+    translate_and_rearrange_subtitles(url)

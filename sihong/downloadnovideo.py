@@ -63,17 +63,17 @@ def downloadYoutube(url):
     # 下载封面
     video_img = youtubeUtil.request_download(yt.thumbnail_url, save_path, file_path,
                                              title)  # 下载视频封面
-    # 下载音频 暂时用youtube-dl的下载方法
-    #audio = youtubeUtil.download_audio(yt, save_path, file_path)
+
     # 下载视频
     #video_num = youtubeUtil.download_video(yt, save_path, file_path)
     video_num = youtubeUtil.download_highest_resolution_video(url,save_path,file_path)
+    # 下载音频 暂时用youtube-dl的下载方法
+    audio = False#youtubeUtil.download_audio(yt, save_path, file_path)
     # 写入excel #转移到下载视频里
-    write_to_excel(yt.author, yt.title, yt.views, yt.publish_date, description, url, author)
     end = time.time()
     if video_img is True or video_num != 0 or audio is True:
-        print(f'\n完成下载:  {title}' + "下载完成,共计花费了{:.2f}秒".format(
-            end - start) + reset_color)
+        write_to_excel(yt.author, yt.title, yt.views, yt.publish_date, description, url,author)
+        print(f'\n完成下载:  {title}' + "下载完成,共计花费了{:.2f}秒".format(end - start) + reset_color)
     else:
         print(f'\n====================本集视频素材均已下载====================')
     return video_num
@@ -102,8 +102,8 @@ def download_by_channels(channe_lists):
     url_end = '/videos'
     num = 0
     sum_video_num = 0  # 本次总下载数
-    up = ""
-    download_num = 7  # 循环下载up主的视频数
+    up = set()
+    download_num = 6  # 循环下载up主的视频数
     for channel in channe_lists:
         video_num = 0  # 初始化视频下载数
         num += 1  # 初始化下载的推主序号
@@ -118,7 +118,7 @@ def download_by_channels(channe_lists):
                 try:
                     video_num = video_num + downloadYoutube(download_url)
                     if video_num != 0:
-                        up += channel + " "
+                        up.add(yt_channel.channel_name)  # Use add() to add unique values to the set
                     time.sleep(3)
                 except Exception as e:
                     print(e)
@@ -127,7 +127,7 @@ def download_by_channels(channe_lists):
         sum_video_num += video_num
         time.sleep(5)  # 每个推主中间停顿下
     print("批量下载完成，共查找" + str(
-        num) + "个UP主,其中:" + up + "有新视频，总共下载下载了 " + str(
+        num) + "个UP主,其中:" + ", ".join(up) + "有新视频，总共下载下载了 " + str(
         sum_video_num) + " 视频。")
 
 
@@ -153,7 +153,7 @@ def channel_type(channel_name):
                  'SBWildernessAdventures', 'BrooksandBirches',
                  'tabi-ie', 'HighlandWoodsman', 'Kampkolik', 'joinmeoutdoors',
                  '2withnature', 'forestsolitude7448',
-                 'silentfamily', 'jaylegere', '365GunDogadayiz', 'LeavesDiary88'],
+                 'silentfamily', 'jaylegere', '365GnDoadayz', 'LeavesDiary88'],
         '徒步': ['HarmenHoek', 'kraigadams'],
         '户外': ['ThisIsMyAlaska', 'BushcraftAdventure', 'NorwegianXplorer', 'Survivaland',
                  'MyMethead'],
@@ -214,7 +214,7 @@ def get_user_choice(channel_list):
 
 
 if __name__ == '__main__':
-    channel_list = ['AtikAilesi']
+    channel_list = ['AtikAilesi','365GunDogadayiz']
     get_user_choice(channel_list)
 
     # try:
