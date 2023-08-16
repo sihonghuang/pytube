@@ -8,7 +8,7 @@ import os
 from googletrans import Translator
 
 def changeEnglishSubtitles(input_url):
-    remove_words = ['Özgür: ', 'Burcu: ', 'Taha: ', 'Dilara: ']
+    remove_words = ['Özgür: ', 'Burcu: ', 'Taha: ', 'Dilara: ','Bush: ','Nehir: ']
     changeSymbol = ['...']
     for line in fileinput.input(input_url, inplace=1, encoding='UTF-8'):
         for remove_word in remove_words:
@@ -17,10 +17,10 @@ def changeEnglishSubtitles(input_url):
             line = line.replace(symbol, '. ')
         print(line, end='')
     format_englishsrt(input_url)
-    try:
-        translate_and_rearrange_subtitles(input_url)
-    except Exception as e:
-        print(f"翻译音频失败：{e}")
+    # try:
+    #     translate_and_rearrange_subtitles(input_url)
+    # except Exception as e:
+    #     print(f"翻译字幕失败：{e}")
     return input_url
 
 
@@ -152,6 +152,28 @@ def format_englishsrt(inputurl):
         f.write(merged_srt)
     f.close()
 
+def changeCHSENfile(input_url):
+    awords = ['标志', '月光', '免费', '十二生肖', '生肖', '征兆', '星座', '签名', 'Burcu']
+    bwords = ['奥兹古尔', 'Ozgur', 'Özgür']
+    cwords = ['……', '。 ', '。']  # 空格代替标点符号
+    dwords = ['Nehir','河','尼赫尔']
+
+    with open(input_url, 'r', encoding='UTF-8') as file:
+        lines = file.readlines()
+
+    with open(input_url, 'w', encoding='UTF-8') as file:
+        for i in range(len(lines)):
+            line = lines[i]
+            if i % 5 == 2:  # 判断是否是每个循环内的第三行（索引从0开始）
+                for a in awords:
+                    line = line.replace(a, "布尔库")
+                for b in bwords:
+                    line = line.replace(b, "厄兹古尔")
+                for c in cwords:
+                    line = line.replace(c, ". ")
+                for d in dwords:
+                    line = line.replace(d, "内希尔")
+            file.write(line)
 
 def merge_caption(chinese_file, english_file):
     str_list_Chinese = open_file(chinese_file)
@@ -225,9 +247,10 @@ def get_user_choice():
         print("选择要使用的功能：")
         print("0. 1和2的组合")
         print("1. 英文字幕加工")
-        print("2. 转换字幕")
+        print("2. 中文字幕加工")
         print("3. 繁体转简体")
         print("4. 合并中英文字幕")
+        print("5. 中英文字幕加工")
 
         choice = input("输入选项编号：")
 
@@ -264,13 +287,17 @@ def get_user_choice():
                 filename = chinesefile.rsplit("\\", 1)[0] + '/中英文字幕.srt'
                 write_list_to_txt(filename, new_str_list)
                 break
+            elif choice == 5:
+                CHSEN = input("输入要中英文字幕文件：")
+                changeCHSENfile(CHSEN)
+                break
 
         print("无效的选项，请重新输入。")
 
 
 if __name__ == '__main__':
     # changeChineseSubtitles(r'D:\油管资料\露营\AtikAilesi\2023-07-07_DEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP\zh-HansDEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP (zh-Hans).srt')
-    # get_user_choice()
+    get_user_choice()
     # englishsrt(r'D:\油管资料\露营\AtikAilesi\2023-07-07_DEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP\enDEVASAPENCEREL2BALKONLUADIRIMIZLAKAMP (en).srt')
-    url = r'D:\油管资料\露营\365GnDoadayz\2022-06-17_GLKENARINDAYILANLARLAKAMP\enGLKENARINDAYILANLARLAKAMP (en).srt'
-    translate_and_rearrange_subtitles(url)
+    #url = r'D:\油管资料\露营\365GnDoadayz\2022-06-17_GLKENARINDAYILANLARLAKAMP\enGLKENARINDAYILANLARLAKAMP (en).srt'
+    #translate_and_rearrange_subtitles(url)

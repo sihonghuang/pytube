@@ -218,7 +218,7 @@ if __name__ == '__main__':
     get_user_choice(channel_list)
 
     # try:
-    #     # 下载单个视频
+    #     # 下载单个视频  
     #     input_url=sys.argv[1]#视频连接
     #     downloadYoutube(input_url, 0, '')
     # except Exception as e:

@@ -67,7 +67,7 @@ def download_caption(url, save_path, file_path, title):
                 captionfile = save_path + file_path + "/" + caption_list[
                     language] + title + " (" + caption_list[language] + ").srt"
                 if commonUtil.file_exists_check(captionfile):
-                    print(language + " 字幕文件已下载，无需重新下载")
+                    print(language + " 字幕文件已下载。")
                 else:
                     srt = YouTubeTranscriptApi.get_transcript(video_url,
                                                               languages=[

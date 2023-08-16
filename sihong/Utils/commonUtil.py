@@ -54,11 +54,10 @@ def delete_mp4_with_prefix(directory_path):
         if folders:
             for filename in os.listdir(directory_path):
                 if filename.startswith("Final_") and filename.lower().endswith(".mp4"):
-                    print("directory_path:" + directory_path)
-                    os.remove(directory_path)
-                    print(f"最终视频已合成，删除文件：{directory_path}")
+                    os.remove(os.path.join(directory_path, filename))
+                    print(f"最终视频已合成，删除文件：{os.path.join(directory_path, filename)}")
         else:
-            print("该视频尚未剪辑")
+            print("该视频尚未剪辑。")
     else:
         print("目录不存在或者不是一个文件夹。")
 
